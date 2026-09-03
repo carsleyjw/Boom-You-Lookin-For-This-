@@ -2,8 +2,10 @@
 <html>
 <head>
   <title>Boom! You Lookin' For This?</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+ 
+  https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2script>
+ 
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -13,96 +15,80 @@
       background: #111;
       color: white;
     }
-
+ 
     h1 {
       text-align: center;
     }
-
+ 
     .subtitle {
       text-align: center;
       color: #bbb;
       margin-bottom: 30px;
     }
-
+ 
     .movie {
       background: #222;
       padding: 16px;
       margin-bottom: 16px;
       border-radius: 10px;
     }
-
+ 
     .title {
       font-size: 24px;
       font-weight: bold;
+      margin-bottom: 8px;
     }
-
+ 
     .rating {
       color: gold;
-      font-size: 18px;
-      margin-top: 8px;
-    }
-
-    .notes {
-      margin-top: 10px;
-      color: #ddd;
+      margin-bottom: 8px;
     }
   </style>
-
-  https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2script>
 </head>
-
+ 
 <body>
-
+ 
 <h1>Boom! You Lookin' For This?</h1>
 <div class="subtitle">
-Joel's Best Picture Journey
+  Joel's Best Picture Journey
 </div>
-
+ 
 <div id="movies"></div>
-
+ 
 <script>
-
-const supabase = window.supabase.createClient(
-  "https://spgwqgjzpaqcynkekebb.supabase.co",
-  "sb_publishable_ydQ0uI84t5JXPke0eYcbcQ_UimwJrm9"
-);
-
-async function loadMovies() {
-
-  const { data, error } = await supabase
-    .from('movie_entries')
-    .select('*')
-    .order('watch_date', { ascending: false });
-
-  console.log(error);
-
-  const container = document.getElementById('movies');
-
-  data.forEach(movie => {
-
-    container.innerHTML += `
-      <div class="movie">
-        <div class="title">${movie.movie_title}</div>
-
-        <div class="rating">
-          Rating: ${movie.rating}
+  const supabaseClient = supabase.createClient(
+    'https://spgwqgjzpaqcynkekebb.supabase.co',
+    'sb_publishable_ydQ0uI84t5JXPke0eYcbcQ_UimwJrm9'
+  );
+ 
+  async function loadMovies() {
+    const { data, error } = await supabaseClient
+      .from('movie_entries')
+      .select('*');
+ 
+    if (error) {
+      console.error(error);
+      document.getElementById('movies').innerHTML =
+        '<p>Error loading movies.</p>';
+      return;
+    }
+ 
+    const container = document.getElementById('movies');
+ 
+    data.forEach(movie => {
+      container.innerHTML += `
+        <div class="movie">
+          <div class="title">${movie.movie_title || ''}</div>
+          <div class="rating">Rating: ${movie.rating || ''}</div>
+          <div>Watched: ${movie.watch_date || ''}</div>
+          <div>${movie.notes || ''}</div>
         </div>
-
-        <div>
-          Watched: ${movie.watch_date || ''}
-        </div>
-
-        <div class="notes">
-          ${movie.notes || ''}
-        </div>
-      </div>
-    `;
-  });
-}
-
-loadMovies();
-
+      `;
+    });
+  }
+ 
+  loadMovies();
 </script>
-
+ 
 </body>
 </html>
