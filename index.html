@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Boom! You Lookin' For This?</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1000px;
+      margin: auto;
+      padding: 20px;
+      background: #111;
+      color: white;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #bbb;
+      margin-bottom: 30px;
+    }
+
+    .movie {
+      background: #222;
+      padding: 16px;
+      margin-bottom: 16px;
+      border-radius: 10px;
+    }
+
+    .title {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .rating {
+      color: gold;
+      font-size: 18px;
+      margin-top: 8px;
+    }
+
+    .notes {
+      margin-top: 10px;
+      color: #ddd;
+    }
+  </style>
+
+  https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2script>
+</head>
+
+<body>
+
+<h1>Boom! You Lookin' For This?</h1>
+<div class="subtitle">
+Joel's Best Picture Journey
+</div>
+
+<div id="movies"></div>
+
+<script>
+
+const supabase = window.supabase.createClient(
+  "https://spgwqgjzpaqcynkekebb.supabase.co",
+  "sb_publishable_ydQ0uI84t5JXPke0eYcbcQ_UimwJrm9"
+);
+
+async function loadMovies() {
+
+  const { data, error } = await supabase
+    .from('movie_entries')
+    .select('*')
+    .order('watch_date', { ascending: false });
+
+  console.log(error);
+
+  const container = document.getElementById('movies');
+
+  data.forEach(movie => {
+
+    container.innerHTML += `
+      <div class="movie">
+        <div class="title">${movie.movie_title}</div>
+
+        <div class="rating">
+          Rating: ${movie.rating}
+        </div>
+
+        <div>
+          Watched: ${movie.watch_date || ''}
+        </div>
+
+        <div class="notes">
+          ${movie.notes || ''}
+        </div>
+      </div>
+    `;
+  });
+}
+
+loadMovies();
+
+</script>
+
+</body>
+</html>
