@@ -77,10 +77,10 @@
     data.forEach(movie => {
       container.innerHTML += `
         <div class="movie">
-          <div class="title">${movie.movie_title || ''}</div>
-          <div class="rating">Rating: ${movie.rating || ''}</div>
-          <div>Watched: ${movie.watch_date || ''}</div>
-          <div>${movie.notes || ''}</div>
+          <div class="title">${movie.title || ''}</div>
+<div class="rating">Rating: ${movie.rating || ''}</div>
+<div>Watched: ${movie.date_watched || ''}</div>
+<div>Best Picture Winner: ${movie.winning_year || ''}</div>
         </div>
       `;
     });
