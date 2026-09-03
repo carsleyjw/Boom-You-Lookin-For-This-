@@ -67,11 +67,10 @@
       .select('*');
  
     if (error) {
-      console.error(error);
-      document.getElementById('movies').innerHTML =
-        '<p>Error loading movies.</p>';
-      return;
-    }
+  document.getElementById('movies').innerHTML =
+    '<p>' + JSON.stringify(error) + '</p>';
+  return;
+}
  
     const container = document.getElementById('movies');
  
