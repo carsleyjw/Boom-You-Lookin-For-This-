@@ -84,6 +84,28 @@
     .movie-card:hover {
       transform: translateY(-3px);
     }
+    .movie-poster {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  background: #222;
+}
+
+.poster-placeholder {
+  display: grid;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  place-items: center;
+  margin-bottom: 16px;
+  padding: 20px;
+  color: #777;
+  background: #222;
+  border-radius: 12px;
+  text-align: center;
+}
 .award-statue {
   width: 80px;
   height: auto;
@@ -175,11 +197,39 @@
     );
 
     const totalBestPictureWinners = 98;
-
+const TMDB_API_KEY = '52fd835c9c4933dc2c74fcaf48736a5d';
+    
    function escapeHtml(value) {
   return String(value ?? '');
 }
+async function getPoster(title, year) {
+  try {
+    const searchUrl =
+      `https://api.themoviedb.org/3/search/movie` +
+      `?api_key=${TMDB_API_KEY}` +
+      `&query=${encodeURIComponent(title)}` +
+      `&year=${encodeURIComponent(year)}`;
 
+    const response = await fetch(searchUrl);
+
+    if (!response.ok) {
+      console.error('TMDb request failed:', response.status);
+      return '';
+    }
+
+    const data = await response.json();
+    const movieResult = data.results?.find(result => result.poster_path);
+
+    if (!movieResult) {
+      return '';
+    }
+
+    return `https://image.tmdb.org/t/p/w500${movieResult.poster_path}`;
+  } catch (error) {
+    console.error('TMDb poster error:', error);
+    return '';
+  }
+}
     async function loadMovies() {document.getElementById('movieCount').innerText =
   'Reached loadMovies()';
 
@@ -241,39 +291,54 @@
         return;
       }
 
-      container.innerHTML = movies.map(movie => {
-        const rating = Math.max(
-          0,
-          Math.min(5, Number(movie.rating) || 0)
-        );
+      const movieCards = await Promise.all(
+  movies.map(async movie => {
+    const posterUrl = await getPoster(
+      movie.title,
+      movie.winning_year
+    );
 
-        const stars = '★'.repeat(Math.floor(rating));
+    const rating = Math.max(
+      0,
+      Math.min(5, Number(movie.rating) || 0)
+    );
 
-        return `
-          <article class="movie-card">
-            <div class="movie-title">
-              ${escapeHtml(movie.title)}
-            </div>
+    const stars = '★'.repeat(Math.floor(rating));
 
-            <div
-              class="stars"
-              aria-label="Rating: ${rating} out of 5"
-            >
-              ${stars || 'Not rated'}
-            </div>
+    const posterHtml = posterUrl
+      ? `\x3Cimg
+           src="${posterUrl}"
+           class="movie-poster"
+           alt="${escapeHtml(movie.title)} poster"
+           loading="lazy"
+         \x3E`
+      : `\x3Cdiv class="poster-placeholder"\x3ENo poster available\x3C/div\x3E`;
 
-            <div class="field">
-              <span class="label">Watched:</span>
-              ${escapeHtml(movie.date_watched) || 'Not entered'}
-            </div>
+    return `
+      <article class="movie-card">
+        ${posterHtml}
 
-            <div class="field">
-              <span class="label">Best Picture Year:</span>
-              ${escapeHtml(movie.winning_year) || 'Not entered'}
-            </div>
-          </article>
-        `;
-      }).join('');
+        <div class="movie-title">
+          ${escapeHtml(movie.title)}
+        </div>
+
+        <div
+          class="stars"
+          aria-label="Rating: ${rating} out of 5"
+        >
+          ${stars || 'Not rated'}
+        </div>
+
+        <div class="field">
+          <span class="label">Best Picture Year:</span>
+          ${escapeHtml(movie.winning_year) || 'Not entered'}
+        </div>
+      </article>
+    `;
+  })
+);
+
+container.innerHTML = movieCards.join('');
     }
 
     loadMovies();
