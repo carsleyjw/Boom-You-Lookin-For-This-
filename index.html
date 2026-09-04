@@ -179,7 +179,9 @@
         .replaceAll("'", ''');
     }
 
-    async function loadMovies() {
+    async function loadMovies() {document.getElementById('movieCount').innerText =
+  'Reached loadMovies()';
+
       const movieCount = document.getElementById('movieCount');
       const progressBar = document.getElementById('progressBar');
       const progressContainer = document.querySelector(
