@@ -144,7 +144,73 @@
       border: 1px solid #7a3333;
       border-radius: 12px;
     }
+.add-movie-section {
+  max-width: 700px;
+  margin: 32px auto;
+  padding: 24px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 16px;
+}
 
+.add-movie-section h2 {
+  margin-top: 0;
+  color: gold;
+}
+
+#addMovieForm {
+  display: grid;
+  gap: 10px;
+}
+
+#addMovieForm label {
+  margin-top: 8px;
+  color: #ccc;
+  font-weight: bold;
+}
+
+#addMovieForm input,
+#addMovieForm select,
+#addMovieForm textarea {
+  width: 100%;
+  padding: 12px;
+  color: white;
+  background: #111;
+  border: 1px solid #555;
+  border-radius: 8px;
+  font: inherit;
+}
+
+#addMovieForm textarea {
+  resize: vertical;
+}
+
+#addMovieForm button {
+  margin-top: 14px;
+  padding: 13px 18px;
+  color: #111;
+  background: gold;
+  border: 0;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#addMovieForm button:hover {
+  background: #ffe34d;
+}
+
+#addMovieForm button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+#formMessage {
+  min-height: 24px;
+  margin-top: 8px;
+  color: #ccc;
+}
     @media (max-width: 600px) {
       .hero {
         padding: 36px 16px;
@@ -172,6 +238,78 @@
 <p>Joel's Best Picture Journey</p>  </header>
 
   <main>
+    <section class="add-movie-section">
+  <h2>Add a Movie</h2>
+
+  <form id="addMovieForm">
+    <label for="title">Movie title</label>
+    <input id="title" name="title" type="text" required>
+
+    <label for="winningYear">Best Picture year</label>
+    <input
+      id="winningYear"
+      name="winningYear"
+      type="number"
+      min="1927"
+      max="2100"
+      required
+    >
+
+    <label for="rating">My rating</label>
+    <select id="rating" name="rating" required>
+      <option value="">Choose a rating</option>
+      <option value="1">★</option>
+      <option value="2">★★</option>
+      <option value="3">★★★</option>
+      <option value="4">★★★★</option>
+      <option value="5">★★★★★</option>
+    </select>
+
+    <label for="dateWatched">Date watched</label>
+    <input
+      id="dateWatched"
+      name="dateWatched"
+      type="date"
+      required
+    >
+
+    <label for="timeCapsuleQuestion">Time-capsule question</label>
+    <select
+      id="timeCapsuleQuestion"
+      name="timeCapsuleQuestion"
+      required
+    >
+      <option value="">Choose a question</option>
+      <option value="What surprised me most about this movie?">
+        What surprised me most about this movie?
+      </option>
+      <option value="What will I remember most about watching it?">
+        What will I remember most about watching it?
+      </option>
+      <option value="What was happening in my life when I watched it?">
+        What was happening in my life when I watched it?
+      </option>
+      <option value="What did this movie make me think about?">
+        What did this movie make me think about?
+      </option>
+      <option value="Would I recommend it, and to whom?">
+        Would I recommend it, and to whom?
+      </option>
+    </select>
+
+    <label for="timeCapsuleAnswer">My answer</label>
+    <textarea
+      id="timeCapsuleAnswer"
+      name="timeCapsuleAnswer"
+      rows="5"
+      required
+    ></textarea>
+
+    <button type="submit">Add Movie</button>
+
+    <div id="formMessage"></div>
+  </form>
+</section>
     <section class="stats">
       <div id="movieCount">Loading movies...</div>
 
@@ -340,7 +478,60 @@ async function getPoster(title, year) {
 
 container.innerHTML = movieCards.join('');
     }
+const addMovieForm = document.getElementById('addMovieForm');
+const formMessage = document.getElementById('formMessage');
 
+addMovieForm.addEventListener('submit', async event => {
+  event.preventDefault();
+
+  const submitButton = addMovieForm.querySelector(
+    'button[type="submit"]'
+  );
+
+  submitButton.disabled = true;
+  submitButton.textContent = 'Adding movie...';
+  formMessage.textContent = '';
+
+  const newMovie = {
+    title: document.getElementById('title').value.trim(),
+    winning_year: Number(
+      document.getElementById('winningYear').value
+    ),
+    rating: Number(
+      document.getElementById('rating').value
+    ),
+    date_watched:
+      document.getElementById('dateWatched').value,
+    time_capsule_question:
+      document.getElementById('timeCapsuleQuestion').value,
+    time_capsule_answer:
+      document.getElementById('timeCapsuleAnswer').value.trim()
+  };
+
+  const { error } = await supabaseClient
+    .from('movie_entries')
+    .insert([newMovie]);
+
+  if (error) {
+    formMessage.textContent =
+      `Unable to add movie: ${error.message}`;
+
+    formMessage.style.color = '#ff8a8a';
+    console.error('Supabase insert error:', error);
+  } else {
+    formMessage.textContent =
+      `${newMovie.title} was added successfully.`;
+
+    formMessage.style.color = '#8cff9b';
+    addMovieForm.reset();
+
+    document.getElementById('movies').innerHTML = '';
+    await loadMovies();
+  }
+
+  submitButton.disabled = false;
+  submitButton.textContent = 'Add Movie';
+});
     loadMovies();
   </script>
 </body>
