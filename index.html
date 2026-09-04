@@ -1,14 +1,14 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <title>Boom! You Lookin' For This?</title>
 
-  
-  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">\</script>
 
-  Boom! You Lookin' For This?
-
-  
-
-  
+  <style>
     * {
       box-sizing: border-box;
     }
@@ -29,8 +29,8 @@
 
     .hero h1 {
       margin: 0;
-      font-size: 42px;
       color: gold;
+      font-size: 42px;
     }
 
     .hero p {
@@ -53,3 +53,227 @@
       height: 24px;
       margin-top: 10px;
       overflow: hidden;
+      background: #222;
+      border-radius: 10px;
+    }
+
+    .progress-bar {
+      width: 0;
+      height: 100%;
+      background: gold;
+      transition: width 0.5s;
+    }
+
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 20px 40px;
+    }
+
+    .movie-card {
+      padding: 20px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 16px;
+      transition: transform 0.2s;
+    }
+
+    .movie-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .movie-title {
+      margin-bottom: 12px;
+      color: gold;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .stars {
+      min-height: 24px;
+      margin-bottom: 10px;
+      color: gold;
+      font-size: 20px;
+    }
+
+    .field {
+      margin-bottom: 8px;
+      color: #ddd;
+    }
+
+    .label {
+      color: #999;
+    }
+
+    .error {
+      grid-column: 1 / -1;
+      padding: 20px;
+      color: #ff8a8a;
+      background: #2a1111;
+      border: 1px solid #7a3333;
+      border-radius: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .hero {
+        padding: 36px 16px;
+      }
+
+      .hero h1 {
+        font-size: 32px;
+      }
+
+      .hero p {
+        font-size: 16px;
+      }
+
+      .movie-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="hero">
+    <h1>🏆 Joel's Best Picture Journey</h1>
+    <p>Watching Every Academy Award Best Picture Winner</p>
+  </header>
+
+  <main>
+    <section class="stats">
+      <div id="movieCount">Loading movies...</div>
+
+      <div
+        class="progress-container"
+        role="progressbar"
+        aria-label="Best Picture viewing progress"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0"
+      >
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+    </section>
+
+    <section class="movie-grid" id="movies"></section>
+  </main>
+
+  <script>
+    const supabaseClient = supabase.createClient(
+      'https://spgwqgjzpaqcynkekebb.supabase.co',
+      'sb_publishable_ydQ0uI84t5JXPke0eYcbcQ_UimwJrm9'
+    );
+
+    const totalBestPictureWinners = 98;
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&')
+        .replaceAll('<', '<')
+        .replaceAll('>', '>')
+        .replaceAll('"', '"')
+        .replaceAll("'", ''');
+    }
+
+    async function loadMovies() {
+      const movieCount = document.getElementById('movieCount');
+      const progressBar = document.getElementById('progressBar');
+      const progressContainer = document.querySelector(
+        '.progress-container'
+      );
+      const container = document.getElementById('movies');
+
+      const { data, error } = await supabaseClient
+        .from('movie_entries')
+        .select('*')
+        .order('date_watched', { ascending: false });
+
+      if (error) {
+        movieCount.textContent = 'Unable to load movies';
+
+        container.innerHTML = `
+          <div class="error">
+            <strong>Supabase error:</strong>
+            ${escapeHtml(error.message)}
+          </div>
+        `;
+
+        console.error('Supabase error:', error);
+        return;
+      }
+
+      const movies = data || [];
+
+      const percent = Math.min(
+        (movies.length / totalBestPictureWinners) * 100,
+        100
+      );
+
+      movieCount.textContent =
+        `🎬 ${movies.length} Best Picture Winners Watched`;
+
+      progressBar.style.width = `${percent}%`;
+
+      progressContainer.setAttribute(
+        'aria-valuenow',
+        String(Math.round(percent))
+      );
+
+      if (movies.length === 0) {
+        container.innerHTML = `
+          <div class="movie-card">
+            <div class="movie-title">No movies found</div>
+
+            <div class="field">
+              The Supabase connection worked, but the movie_entries
+              table returned no rows.
+            </div>
+          </div>
+        `;
+
+        return;
+      }
+
+      container.innerHTML = movies.map(movie => {
+        const rating = Math.max(
+          0,
+          Math.min(5, Number(movie.rating) || 0)
+        );
+
+        const stars = '★'.repeat(Math.floor(rating));
+
+        return `
+          <article class="movie-card">
+            <div class="movie-title">
+              ${escapeHtml(movie.title)}
+            </div>
+
+            <div
+              class="stars"
+              aria-label="Rating: ${rating} out of 5"
+            >
+              ${stars || 'Not rated'}
+            </div>
+
+            <div class="field">
+              <span class="label">Watched:</span>
+              ${escapeHtml(movie.date_watched) || 'Not entered'}
+            </div>
+
+            <div class="field">
+              <span class="label">Best Picture Year:</span>
+              ${escapeHtml(movie.winning_year) || 'Not entered'}
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    loadMovies();
+  </script>
+</body>
+</html>
