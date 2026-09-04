@@ -6,7 +6,7 @@
 
   <title>Boom! You Lookin' For This?</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">\</script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     * {
@@ -170,14 +170,9 @@
 
     const totalBestPictureWinners = 98;
 
-    function escapeHtml(value) {
-      return String(value ?? '')
-        .replaceAll('&', '&')
-        .replaceAll('<', '<')
-        .replaceAll('>', '>')
-        .replaceAll('"', '"')
-        .replaceAll("'", ''');
-    }
+   function escapeHtml(value) {
+  return String(value ?? '');
+}
 
     async function loadMovies() {document.getElementById('movieCount').innerText =
   'Reached loadMovies()';
