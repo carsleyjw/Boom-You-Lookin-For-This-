@@ -1,93 +1,55 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title>Boom! You Lookin' For This?</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
- 
- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
   
-  <style>
+  
+
+  Boom! You Lookin' For This?
+
+  
+
+  
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      max-width: 1000px;
-      margin: auto;
-      padding: 20px;
-      background: #111;
+      margin: 0;
+      background: #0a0a0a;
       color: white;
+      font-family: Arial, sans-serif;
     }
- 
-    h1 {
+
+    .hero {
       text-align: center;
+      padding: 50px 20px;
+      background: linear-gradient(to bottom, #1a1a1a, #0a0a0a);
+      border-bottom: 1px solid #333;
     }
- 
-    .subtitle {
-      text-align: center;
-      color: #bbb;
-      margin-bottom: 30px;
-    }
- 
-    .movie {
-      background: #222;
-      padding: 16px;
-      margin-bottom: 16px;
-      border-radius: 10px;
-    }
- 
-    .title {
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
- 
-    .rating {
+
+    .hero h1 {
+      margin: 0;
+      font-size: 42px;
       color: gold;
-      margin-bottom: 8px;
     }
-  </style>
-</head>
- 
-<body>
- 
-<h1>Boom! You Lookin' For This?</h1>
-<div class="subtitle">
-  Joel's Best Picture Journey
-</div>
- 
-<div id="movies"></div>
- 
-<script>
-  const supabaseClient = supabase.createClient(
-    'https://spgwqgjzpaqcynkekebb.supabase.co',
-    'sb_publishable_ydQ0uI84t5JXPke0eYcbcQ_UimwJrm9'
-  );
- 
-  async function loadMovies() {
-    const { data, error } = await supabaseClient
-      .from('movie_entries')
-      .select('*');
- 
-    if (error) {
-  document.getElementById('movies').innerHTML =
-    '<p>' + JSON.stringify(error) + '</p>';
-  return;
-}
- 
-    const container = document.getElementById('movies');
- 
-    data.forEach(movie => {
-      container.innerHTML += `
-        <div class="movie">
-          <div class="title">${movie.title || ''}</div>
-<div class="rating">Rating: ${movie.rating || ''}</div>
-<div>Watched: ${movie.date_watched || ''}</div>
-<div>Best Picture Winner: ${movie.winning_year || ''}</div>
-        </div>
-      `;
-    });
-  }
- 
-  loadMovies();
-</script>
- 
-</body>
-</html>
+
+    .hero p {
+      color: #ccc;
+      font-size: 18px;
+    }
+
+    .stats {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    #movieCount {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .progress-container {
+      height: 24px;
+      margin-top: 10px;
+      overflow: hidden;
